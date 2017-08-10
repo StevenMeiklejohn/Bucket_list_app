@@ -1,0 +1,35 @@
+@font-face {
+  font-family: "jonny";
+  src: url(johnny_fever.otf);
+}
+
+html { 
+  background: url(lcd.jpg) no-repeat center center fixed; 
+  background-size: cover;
+}
+
+
+#em { 
+  color: white;
+  text-decoration:underline; }
+
+.em {
+  color: white;
+  text-decoration:underline; }
+
+#details { color: red }
+
+.details { color: red }
+
+h1{ display: flex;
+  justify-content: center;
+  color: white;
+  font-size: 60px;
+  }
+
+p, li { font-size: 30px; }
+
+body {
+  font-family: "jonny";
+}
+

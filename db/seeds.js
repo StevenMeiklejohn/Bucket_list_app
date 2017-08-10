@@ -1,13 +1,11 @@
 db.dropDatabase();
-use bucket;
+use nuke;
 db.countries.insert([
 {
-  name: "Japan",
-  city: "Tokyo"
+  name: "Japan"
 },
 {
-  name:"Canada",
-  city:"Toronto"
+  name:"Canada"
 }
 ]);
 

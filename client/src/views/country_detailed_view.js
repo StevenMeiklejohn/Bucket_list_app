@@ -1,15 +1,25 @@
-var CountryDetailView = function(element){
+var CountryDetailView = function(element, callback){
   this.element = element;
-  this.onAdd = console.log;
+  this.onAdd = callback;
 }
 
 CountryDetailView.prototype = {
   render: function(country){
-    var tags = this.element.querySelectorAll('p')
-    tags[0].innerText = country.name;
-    tags[1].innerText = country.population;
-    tags[2].innerText = country.capital;
-    var addButton = this.element.querySelector('#add-button');
+    var pTags = document.querySelectorAll('#info p');
+    pTags[1].innerText = country.name;
+    pTags[3].innerText = country.population;
+    pTags[5].innerText = country.capital;
+    borders = country.borders;
+    console.log(country.name);
+    var ul = document.getElementById("borders");
+    borders.forEach(function(bc){
+      var li = document.createElement('li');
+      li.innerText = bc;
+      ul.appendChild(li);
+    });
+
+    document.getElementById("flag").src=country.flag;
+    var addButton = document.getElementById('add-button');
     addButton.onclick = function(){
       this.onAdd(country);
     }.bind(this);
@@ -17,3 +27,5 @@ CountryDetailView.prototype = {
 }
 
 module.exports = CountryDetailView;
+
+
