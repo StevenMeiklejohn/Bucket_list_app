@@ -1,6 +1,7 @@
-var CountryDetailView = function(element, callback){
+var CountryDetailView = function(element, callback, mapWrapper){
   this.element = element;
   this.onAdd = callback;
+  this.mapWrapper = mapWrapper;
 }
 
 CountryDetailView.prototype = {
@@ -21,11 +22,12 @@ CountryDetailView.prototype = {
     document.getElementById("flag").src=country.flag;
     var addButton = document.getElementById('add-button');
     addButton.onclick = function(){
+      console.log(country.latlng[0]);
+      this.mapWrapper.setView(country.latlng);
+      this.mapWrapper.addMarker(country.latlng);
       this.onAdd(country);
     }.bind(this);
   }
 }
 
 module.exports = CountryDetailView;
-
-

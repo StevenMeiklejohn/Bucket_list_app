@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -109,6 +109,55 @@ module.exports = CountrySelectView
 /* 1 */
 /***/ (function(module, exports) {
 
+const nukeIcon = L.icon({
+  iconUrl: 'gif-explosion-20.gif',
+  iconSize:     [80, 190], // size of the icon
+  shadowSize:   [50, 64], // size of the shadow
+  iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+  shadowAnchor: [4, 62],  // the same for the shadow
+  popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+});
+
+const MapWrapper = function(element, coords, zoom){
+
+  const osmLayer = new L.TileLayer("https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}{r}.png");
+
+
+
+// var icon = L.divIcon({
+//     iconSize: [30, 30],
+//     iconAnchor: [10, 10],
+//     popupAnchor: [10, 0],
+//     shadowSize: [0, 0],
+//     className: 'animated-icon my-icon-id'
+// })
+  this.map = L.map(element).addLayer(osmLayer).setView(coords, zoom);
+  // this.map.on("click", event => this.addMarker(event.latlng));
+  this.map.on("click", function(event) {
+    console.log(event.latlng.lat);
+    console.log(event.latlng.lng);
+
+  L.marker([event.latlng.lat, event.latlng.lng], {icon: nukeIcon}).addTo(this.map);
+  // this.addMarker(event.latlng);
+}.bind(this));
+
+}
+
+MapWrapper.prototype.addMarker = function(coords){
+  L.marker(coords, {icon: nukeIcon}).addTo(this.map);
+}
+
+MapWrapper.prototype.setView = function(coords){
+  this.map.setView(coords, 10);
+}
+
+module.exports = MapWrapper;
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports) {
+
 var CountryList = function(url){
   this.countries = [];
   this.onUpdate = null;
@@ -151,7 +200,7 @@ module.exports = CountryList;
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports) {
 
 var BucketListView = function(listElement){
@@ -181,12 +230,13 @@ module.exports = BucketListView
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports) {
 
-var CountryDetailView = function(element, callback){
+var CountryDetailView = function(element, callback, mapWrapper){
   this.element = element;
   this.onAdd = callback;
+  this.mapWrapper = mapWrapper;
 }
 
 CountryDetailView.prototype = {
@@ -207,6 +257,9 @@ CountryDetailView.prototype = {
     document.getElementById("flag").src=country.flag;
     var addButton = document.getElementById('add-button');
     addButton.onclick = function(){
+      console.log(country.latlng[0]);
+      this.mapWrapper.setView(country.latlng);
+      this.mapWrapper.addMarker(country.latlng);
       this.onAdd(country);
     }.bind(this);
   }
@@ -215,58 +268,59 @@ CountryDetailView.prototype = {
 module.exports = CountryDetailView;
 
 
-
-
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var CountriesSelectView = __webpack_require__(0);
-var BucketListView = __webpack_require__(2);
-var CountryDetailView = __webpack_require__(3);
+var BucketListView = __webpack_require__(3);
+var CountryDetailView = __webpack_require__(4);
 var CountrySelectView = __webpack_require__(0);
-
-var CountryList = __webpack_require__(1);
+var CountryList = __webpack_require__(2);
+var MapWrapper = __webpack_require__(1);
 
 
 window.onload = function () {
-    //setup views
-    var countriesSelectView = new CountriesSelectView(document.querySelector('#countries'));
-    var bucketList = new CountryList('http://localhost:3000/bucketList');
-    var countryDetailView = new CountryDetailView(document.querySelector('#info'), bucketList.addCountry);
-    var bucketListView = new BucketListView(document.querySelector('#bucket-list'));
+  //setup views
+  var countriesSelectView = new CountriesSelectView(document.querySelector('#countries'));
+  var bucketList = new CountryList('http://localhost:3000/bucketList');
+  var bucketListView = new BucketListView(document.querySelector('#bucket-list'));
+  // var mapDiv = document.getElementById('#mapDiv');
+  const containerID = "mapDiv"
+  const coords = [55.8642, 4.2518];
+  const zoom = 5;
+  const mainMap = new MapWrapper(containerID, coords, zoom);
+  const countryDetailView = new CountryDetailView(document.querySelector('#info'), bucketList.addCountry, mainMap);
 
-    //link change on select to update detail view and persist last country
-    countriesSelectView.onChange = function(country){
-      countryDetailView.render(country);
-    }
 
-    //setup country list model
-    var world = new CountryList('https://restcountries.eu/rest/v2');
-    // var bucketList = new CountryList('http://localhost:3000/bucketList');
+  //link change on select to update detail view and persist last country
+  countriesSelectView.onChange = function(country){
+    countryDetailView.render(country);
+    // mainMap.addMarker
+  }
 
-    //update views on data update
-    world.onUpdate = function(countries){
-      countriesSelectView.render(countries);
-    };
+  //setup country list model
+  var world = new CountryList('https://restcountries.eu/rest/v2');
+  // var bucketList = new CountryList('http://localhost:3000/bucketList');
 
-    bucketList.onUpdate = function(countries){
-      bucketListView.render(countries);
-    };
+  //update views on data update
+  world.onUpdate = function(countries){
+    countriesSelectView.render(countries);
+  };
 
-    countryDetailView.onAdd = function(country){
-      bucketList.addCountry(country)
-    }
+  bucketList.onUpdate = function(countries){
+    bucketListView.render(countries);
+  };
 
-    //get data from server
-    world.populate();
-    bucketList.populate();
+  countryDetailView.onAdd = function(country){
+    bucketList.addCountry(country)
+  }
+
+  //get data from server
+  world.populate();
+  bucketList.populate();
 
 };
-
-
-
-
 
 
 /***/ })

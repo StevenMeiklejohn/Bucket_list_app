@@ -3,13 +3,31 @@
   src: url(johnny_fever.otf);
 }
 
-html { 
-  background: url(lcd.jpg) no-repeat center center fixed; 
+#mapContainer {
+  width: 50%;
+  display: inline-block;
+  top: 250px;
+  right: -100px;
+  margin-right: 50px;
+  position: fixed;
+}
+
+#mapDiv {
+  width: 500px;
+  height: 500px;
+}
+
+#mainDiv {
+  display: inline-block;
+}
+
+html {
+  background: url(lcd.jpg) no-repeat center center fixed;
   background-size: cover;
 }
 
 
-#em { 
+#em {
   color: white;
   text-decoration:underline; }
 
@@ -32,4 +50,3 @@ p, li { font-size: 30px; }
 body {
   font-family: "jonny";
 }
-
